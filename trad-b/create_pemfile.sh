@@ -1,42 +1,48 @@
 #!/bin/bash
 ## === PATH config ===
 CURRENT_PATH=$(pwd)
-DOMAIN_NAME=pf.ws-g.jp
+DOMAIN_NAME=$1
+
+## === DOMAIN_NAME check ===
+if [ -z ${DOMAIN_NAME} ]; then
+	echo "No Domain name!!"
+	echo "Abort!!"
+	exit
+fi
 
 ## === PEM file check ===
 if [ -f ./${DOMAIN_NAME}.pem ]; then
-        echo "Exist ${DOMAIN_NAME}.pem file!!  Overwrite OK?(yes/no)"
+	echo "Exist ${DOMAIN_NAME}.pem file!!  Overwrite OK?(yes/no)"
 
-        read proceed
-        if test $proceed != "yes"; then
-                echo "Abort!!"
-                exit
-        fi
+	read proceed
+	if [ ${proceed} != "yes" ]; then
+		echo "Abort!!"
+		exit
+	fi
 fi
 
 if [ -f ./${DOMAIN_NAME}.key ]; then
-        echo "Exist ${DOMAIN_NAME}.key file!!  Overwrite OK?(yes/no)"
+	echo "Exist ${DOMAIN_NAME}.key file!!  Overwrite OK?(yes/no)"
 
-        read proceed
-        if test $proceed != "yes"; then
-                echo "Abort!!"
-                exit
-        fi
+	read proceed
+	if [ ${proceed} != "yes" ]; then
+		echo "Abort!!"
+		exit
+	fi
 fi
 
 if [ -f ./${DOMAIN_NAME}.crt ]; then
-        echo "Exist ${DOMAIN_NAME}.crt file!!  Overwrite OK?(yes/no)"
+	echo "Exist ${DOMAIN_NAME}.crt file!!  Overwrite OK?(yes/no)"
 
-        read proceed
-        if test $proceed != "yes"; then
-                echo "Abort!!"
-                exit
-        fi
+	read proceed
+	if [ ${proceed} != "yes" ]; then
+		echo "Abort!!"
+		exit
+	fi
 fi
 
 
-## === SET FILEs ===
-
+## === SET FILEs === 
 echo "PFX file name ?"
 read pfx_filename 
 #pfx_filename="pf.ws-g.jp.pfx"
@@ -50,7 +56,7 @@ echo "Intermediate CA file name ?"
 read intermediate_ca_filename
 #intermediate_ca_filename="CybertrustJapanPublicCAG2.cer"
 if [ ! -f ./${intermediate_ca_filename} ]; then
-        echo "No exists Intermediate CA file!!"
+	echo "No exists Intermediate CA file!!"
 	echo "Abort!!"
 	exit
 fi
@@ -59,10 +65,10 @@ echo "CrossRoot CA file name ?"
 read crossroot_ca_filename
 #crossroot_ca_filename="BaltimoreCyberTrustRoot.cer"
 if [ ! -f ./${crossroot_ca_filename} ]; then
-        echo "No exist Intermediate CA file!!  Proceed?(yes/no)"
+	echo "No exist Intermediate CA file!!  Proceed?(yes/no)"
 
 	read proceed
-	if test $proceed != "yes"; then
+	if [ ${proceed} != "yes" ]; then
 		echo "Abort!!"
 		exit
 	fi
@@ -77,15 +83,15 @@ echo "============================================="
 echo ""
 
 openssl pkcs12 -in ${pfx_filename} -out ${DOMAIN_NAME}.key -nocerts -nodes
-if test $? != 0; then
-        echo "Failed!!"
-        exit
+if [ $? != 0 ]; then
+	echo "Failed!!"
+	exit
 fi
 
 openssl pkcs12 -in ${pfx_filename} -out ${DOMAIN_NAME}.crt -clcerts -nokeys
-if test $? != 0; then
-        echo "Failed!!"
-        exit
+if [ $? != 0 ]; then
+	echo "Failed!!"
+	exit
 fi
 
 echo ""
@@ -108,3 +114,6 @@ tr -d '\r' < ${DOMAIN_NAME}.pem.bak > ${DOMAIN_NAME}.pem
 rm -f ${DOMAIN_NAME}.pem.bak
 
 echo "finish!!"
+echo ""
+
+

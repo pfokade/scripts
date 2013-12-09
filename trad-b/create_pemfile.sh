@@ -3,21 +3,21 @@
 CURRENT_PATH=$(pwd)
 DOMAIN_NAME=$1
 
-## === DOMAIN_NAME check ===
+## ===  checked DOMAIN_NAME ===
 if [ -z ${DOMAIN_NAME} ]; then
 	echo "No Domain name!!"
 	echo "Abort!!"
-	exit
+	exit 1
 fi
 
-## === PEM file check ===
+## === checked PEM file ===
 if [ -f ./${DOMAIN_NAME}.pem ]; then
 	echo "Exist ${DOMAIN_NAME}.pem file!!  Overwrite OK?(yes/no)"
 
 	read proceed
-	if [ ${proceed} != "yes" ]; then
+	if [ _${proceed} != "_yes" ]; then
 		echo "Abort!!"
-		exit
+		exit 1
 	fi
 fi
 
@@ -25,9 +25,9 @@ if [ -f ./${DOMAIN_NAME}.key ]; then
 	echo "Exist ${DOMAIN_NAME}.key file!!  Overwrite OK?(yes/no)"
 
 	read proceed
-	if [ ${proceed} != "yes" ]; then
+	if [ _${proceed} != "_yes" ]; then
 		echo "Abort!!"
-		exit
+		exit 1
 	fi
 fi
 
@@ -35,9 +35,9 @@ if [ -f ./${DOMAIN_NAME}.crt ]; then
 	echo "Exist ${DOMAIN_NAME}.crt file!!  Overwrite OK?(yes/no)"
 
 	read proceed
-	if [ ${proceed} != "yes" ]; then
+	if [ _${proceed} != "_yes" ]; then
 		echo "Abort!!"
-		exit
+		exit 1
 	fi
 fi
 
@@ -49,7 +49,7 @@ read pfx_filename
 if [ ! -f ./${pfx_filename} ]; then
 	echo "No exists PFX file!!"
 	echo "Abort!!"
-	exit
+	exit 1
 fi
 
 echo "Intermediate CA file name ?"
@@ -58,7 +58,7 @@ read intermediate_ca_filename
 if [ ! -f ./${intermediate_ca_filename} ]; then
 	echo "No exists Intermediate CA file!!"
 	echo "Abort!!"
-	exit
+	exit 1
 fi
 
 echo "CrossRoot CA file name ?"
@@ -68,9 +68,9 @@ if [ ! -f ./${crossroot_ca_filename} ]; then
 	echo "No exist Intermediate CA file!!  Proceed?(yes/no)"
 
 	read proceed
-	if [ ${proceed} != "yes" ]; then
+	if [ _${proceed} != "_yes" ]; then
 		echo "Abort!!"
-		exit
+		exit 1
 	fi
 fi
 
@@ -85,15 +85,17 @@ echo ""
 openssl pkcs12 -in ${pfx_filename} -out ${DOMAIN_NAME}.key -nocerts -nodes
 if [ $? != 0 ]; then
 	echo "Failed!!"
-	exit
+	exit 1
 fi
 
 openssl pkcs12 -in ${pfx_filename} -out ${DOMAIN_NAME}.crt -clcerts -nokeys
 if [ $? != 0 ]; then
 	echo "Failed!!"
-	exit
+	exit 1
 fi
 
+
+## ===  KEY, CERs -> PEM ===
 echo ""
 echo "============================================="
 echo "create PEM file from KEY, CRT, Intermediate CA and Crossroot CA"
